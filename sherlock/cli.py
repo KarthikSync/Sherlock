@@ -17,7 +17,10 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
-def _run_cycle(input_path: str | Path | None) -> tuple[list[str], list[str]]:
+def _run_cycle(
+    input_path: str | Path | None,
+    summarize: bool = False,
+) -> tuple[list[str], list[str]]:
     """
     Run one detection cycle.
     Returns (transition_lines, steady_state_case_ids).
@@ -37,6 +40,11 @@ def _run_cycle(input_path: str | Path | None) -> tuple[list[str], list[str]]:
         timestamp = finding["timestamp"]
         transitions = tr.compute_transitions(case, finding, is_new)
         tr.update_case(case, finding, is_new, timestamp)
+        if summarize and is_new:
+            from sherlock import llm
+            hypothesis = llm.summarize(finding)
+            if hypothesis:
+                case["hypothesis"] = hypothesis
         mem.save_case(case)
         for t in transitions:
             line = rend.format_transition(t)
@@ -77,7 +85,8 @@ def cli() -> None:
 @click.option("--input", "input_path", default=None,
               help="Path to telemetry JSON file. Reads stdin if omitted.")
 @click.option("--no-llm", is_flag=True, default=False, hidden=True)
-@click.option("--summarize", is_flag=True, default=False, hidden=True)
+@click.option("--summarize", is_flag=True, default=False,
+              help="Generate hypothesis text via OpenRouter (requires OPENROUTER_API_KEY).")
 def run_cmd(input_path: str | None, no_llm: bool, summarize: bool) -> None:
     """Run one detection cycle against telemetry input."""
     if input_path is None and sys.stdin.isatty():
@@ -87,7 +96,7 @@ def run_cmd(input_path: str | None, no_llm: bool, summarize: bool) -> None:
             err=True,
         )
         sys.exit(1)
-    lines, _ = _run_cycle(input_path)
+    lines, _ = _run_cycle(input_path, summarize=summarize)
     for line in lines:
         click.echo(line)
 
