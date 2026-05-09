@@ -52,6 +52,21 @@ Cases are stored as human-readable markdown in `memory/cases/CASE-NNNN-<slug>.md
 Each file has YAML frontmatter tracking status, severity, and timestamps, plus
 append-only evidence and decision logs.
 
+## LLM summarization (optional)
+
+By default Sherlock runs fully deterministic with no LLM calls. To enable
+AI-generated hypothesis text on case files, set your API key and pass
+`--summarize`:
+
+```bash
+export OPENAI_API_KEY=sk-...
+sherlock run --input telemetry.json --summarize
+```
+
+The key is read from the `OPENAI_API_KEY` environment variable. If it is
+absent when `--summarize` is used, Sherlock logs a warning and continues
+without summarization — it is never a hard failure.
+
 ## Running tests
 
 ```bash
