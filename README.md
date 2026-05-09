@@ -52,6 +52,33 @@ Cases are stored as human-readable markdown in `memory/cases/CASE-NNNN-<slug>.md
 Each file has YAML frontmatter tracking status, severity, and timestamps, plus
 append-only evidence and decision logs.
 
+## LLM summarization (optional)
+
+By default Sherlock runs fully deterministic with no LLM calls. To enable
+AI-generated hypothesis text on new case files, install the LLM extra and
+set your [OpenRouter](https://openrouter.ai) API key:
+
+```bash
+pip install -e ".[llm]"
+export OPENROUTER_API_KEY=sk-or-...
+sherlock run --input telemetry.json --summarize
+```
+
+To pick a specific model (defaults to `openai/gpt-4o-mini`):
+
+```bash
+export OPENROUTER_MODEL=anthropic/claude-3-haiku
+sherlock run --input telemetry.json --summarize
+```
+
+OpenRouter gives access to models from OpenAI, Anthropic, Mistral, and
+others through a single key — useful for community testing without
+committing to a specific provider.
+
+If `OPENROUTER_API_KEY` is absent or the call fails, Sherlock logs a
+warning to stderr and continues without summarization — it is never a
+hard failure.
+
 ## Running tests
 
 ```bash

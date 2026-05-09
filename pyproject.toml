@@ -18,6 +18,7 @@ sherlock = "sherlock.cli:cli"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+llm = ["openai>=1.0"]
 
 [tool.setuptools.packages.find]
 where = ["."]
