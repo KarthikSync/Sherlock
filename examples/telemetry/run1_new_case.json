@@ -1,0 +1,1 @@
+{"service": "checkout", "metric": "p95_latency_ms", "value": 2500, "threshold": 1500, "timestamp": "2026-05-09T08:00:00Z"}
